@@ -1,17 +1,20 @@
 package com.xnm.chatapp.chat;
 
+import com.xnm.chatapp.config.LogMessage;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.stereotype.Controller;
 
+import java.util.Objects;
+
 @Controller
 public class ChatController {
-
     @MessageMapping("/chat.sendMessage")
     @SendTo("/topic/public")
     public ChatMessage sendMessage(@Payload ChatMessage chatMessage) {
+        LogMessage.logMessage(chatMessage.getContent());
         return chatMessage;
     }
 
@@ -21,7 +24,7 @@ public class ChatController {
             @Payload ChatMessage chatMessage,
             SimpMessageHeaderAccessor headerAccessor
     ) {
-        headerAccessor.getSessionAttributes().put("username", chatMessage.getSender());
+        Objects.requireNonNull(headerAccessor.getSessionAttributes()).put("username", chatMessage.getSender());
         return chatMessage;
     }
 }
